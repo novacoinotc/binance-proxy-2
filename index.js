@@ -9,17 +9,18 @@ app.use(express.json());
 
 app.post('/proxy', async (req, res) => {
   try {
-    const { url, method = 'GET', headers = {}, data = {} } = req.body;
+    const { url, method = 'GET', headers = {}, data } = req.body;
 
     const response = await axios({
       url,
       method,
       headers,
-      data
+      data // 👈 axios usa "data", no "body"
     });
 
     res.status(response.status).json(response.data);
   } catch (error) {
+    console.error('Error en proxy:', error.message);
     res.status(error.response?.status || 500).json({
       error: 'Error al conectar con el destino',
       details: error.response?.data || error.message
@@ -28,6 +29,4 @@ app.post('/proxy', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Servidor proxy escuchando en el puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Proxy en puerto ${PORT}`));
